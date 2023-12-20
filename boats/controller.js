@@ -26,9 +26,18 @@ export const addOneBoat = async (req, res) => {
 
 export const removeOneBoat = async (req, res) => {
   const { id } = req.params;
+  //handle delete image
+  const boat = await BoatModel.findOne({ _id: id });
+
   const deletedBot = await BoatModel.findOneAndDelete({ _id: id });
+
+  if (boat) {
+    await fs.unlink(boat.img);
+  }
+
   console.log("____deletedOne________⛵︎", deletedBot);
-  res.end();
+  res.json(deletedBot);
+  // res.end();
 };
 
 export const editOneBoat = async (req, res) => {

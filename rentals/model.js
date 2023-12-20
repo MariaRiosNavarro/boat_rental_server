@@ -6,8 +6,8 @@ const rentalSchema = new mongoose.Schema({
   //complete Document
   documentBoat: { type: mongoose.Types.ObjectId, ref: "boats" },
   username: String,
-  dayStart: Number,
-  dayEnd: Number,
+  daystart: String,
+  dayend: String,
   price: Number,
   bonus: Boolean,
 });

@@ -4,11 +4,13 @@ export const addOneRental = async (req, res) => {
   const { id } = req.params;
 
   const rentalInfo = req.body;
+
   rentalInfo.referenceBootId = id;
   rentalInfo.documentBoat = id;
+  console.log("____addOneRental________📅", rentalInfo);
 
   const rental = await RentalModel(rentalInfo);
-  console.log("____addOneRental________📅", rental);
+  // console.log("____addOneRental________📅", rental);
   await rental.save();
   res.end();
 };

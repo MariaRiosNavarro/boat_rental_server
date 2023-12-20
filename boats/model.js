@@ -16,6 +16,7 @@ const boatsSchema = new mongoose.Schema({
   airconditioner: Boolean,
   autopilot: Boolean,
   wifi: Boolean,
+  hotwater: Boolean,
 });
 
 export const BoatModel = mongoose.model("boats", boatsSchema);

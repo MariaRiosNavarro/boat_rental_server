@@ -9,7 +9,7 @@ import {
 } from "./controller.js";
 
 export const router = new express.Router();
-const upload = multer({ dest: "/images" });
+const upload = multer({ dest: "./images" });
 
 router.get("/", getAllBoats);
 router.get("/:id", getOneBoat);

@@ -35,9 +35,10 @@ export const editOneBoat = async (req, res) => {
   const { id } = req.params;
 
   //save new data & add image if it is in the request
-  const newBoatData = req.body;
+  const newBoatData = { ...req.body };
   if (req.file) {
-    return (newBoatData.img = req.file.path);
+    newImage = req.file.path;
+    newBoatData.img = newImage; // Update img property if there is a file
   }
   let newImage = newBoatData.img;
 
@@ -49,10 +50,14 @@ export const editOneBoat = async (req, res) => {
   //acts as the unique identifier is _id in MongoDB
   //documents. This is a convention set by Mongoose and MongoDB.
   // also we dont need to write _id:id
+  console.log("Boat ID:----------------", id);
+  console.log("New Boat Data:---------------", newBoatData);
 
   const updateBoat = await BoatModel.findByIdAndUpdate(id, newBoatData, {
     new: true,
   });
+
+  console.log("Updated Boat:", updateBoat);
 
   //remove the old image if the req has a new image
 
@@ -63,5 +68,5 @@ export const editOneBoat = async (req, res) => {
   }
 
   console.log("____updateBoat________⛵︎", updateBoat);
-  res.end();
+  res.json(updateBoat);
 };

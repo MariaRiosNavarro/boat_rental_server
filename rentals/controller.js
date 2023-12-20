@@ -1,4 +1,3 @@
-import { BoatModel } from "../boats/model.js";
 import { RentalModel } from "./model.js";
 
 export const addOneRental = async (req, res) => {
@@ -33,7 +32,7 @@ export const getAllRental = async (req, res) => {
 
 export const removeOneRental = async (req, res) => {
   const { id } = req.params;
-  const deletedRent = await BoatModel.findByIdAndDelete({ _id: id });
+  const deletedRent = await RentalModel.findByIdAndDelete({ _id: id });
   console.log("____removeOneRental________📅", deletedRent);
   res.end();
 };

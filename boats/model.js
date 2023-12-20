@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 
 const boatsSchema = new mongoose.Schema({
   img: String,
-  name: String,
+  boatname: String,
   skipper: Boolean,
-  type: String,
-  subtype: String,
-  material: String,
+  boattype: String,
+  boatsubtype: String,
+  material: [String],
   price: Number,
   cabins: Number,
   bathrooms: Number,

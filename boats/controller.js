@@ -73,6 +73,7 @@ export const editOneBoat = async (req, res) => {
   console.log("Updated Boat:", updateBoat);
 
   // remove the old image if the req has a new image
+  // error handling no oldimage need it
 
   if (newImage && oldImage) {
     await fs.unlink(oldImage);

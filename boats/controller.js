@@ -36,15 +36,19 @@ export const editOneBoat = async (req, res) => {
 
   //save new data & add image if it is in the request
   const newBoatData = { ...req.body };
+
+  let newImage;
+
   if (req.file) {
     newImage = req.file.path;
-    newBoatData.img = newImage; // Update img property if there is a file
+    newBoatData.img = newImage;
   }
-  let newImage = newBoatData.img;
 
   //check if old Data has a Image
   const oldData = await BoatModel.findById(id);
   const oldImage = oldData.img;
+
+  console.log("oldIMG", oldImage);
 
   //Update with id: Mongoose assumes by default that the field that
   //acts as the unique identifier is _id in MongoDB
@@ -59,9 +63,9 @@ export const editOneBoat = async (req, res) => {
 
   console.log("Updated Boat:", updateBoat);
 
-  //remove the old image if the req has a new image
+  // remove the old image if the req has a new image
 
-  if (newImage && oldImage && newImage !== oldImage) {
+  if (newImage && oldImage) {
     await fs.unlink(oldImage);
   } else {
     console.log("Image don´t change");

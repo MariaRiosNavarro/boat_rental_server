@@ -111,7 +111,7 @@ export const editOneBoat = async (req, res) => {
   }
 };
 
-//------------------------------------  BOATS + RENTALS combined ROUTES
+//------------------------------------------------------------------------------BOATS + RENTALS combined ROUTES
 
 export const getFreeBoatsOnDate = async (req, res) => {
   try {
@@ -185,7 +185,7 @@ export const getAllRentedBoats = async (req, res) => {
 
     res.json(uniqueObjectIdsArray);
   } catch (error) {
-    console.error("Error retrieving boats without reservations:", error);
+    console.error("Error retrieving boats with reservations:", error);
     res.status(500).send("Internal server error");
   }
 };
@@ -207,7 +207,71 @@ export const getRentedBoatsOnDate = async (req, res) => {
     res.json(boatsWithReservations);
   } catch (error) {
     console.error(
+      `Error retrieving rented boats on the specified date:${requestedDate} -------🦑`,
+      error
+    );
+    res.status(500).send("Internal server error");
+  }
+};
+
+// With othe time
+
+export const getFreeBoatsOnPeriod = async (req, res) => {
+  try {
+    const startDate = new Date(req.params.date);
+    const endDate = new Date(req.params.end);
+
+    console.log("startdate----------------------", startDate);
+    console.log("endDate----------------------", endDate);
+
+    // Filter reservations that overlap with the specified date range in RENTAL collection
+    const reservationsOnDate = await RentalModel.find({
+      $or: [
+        { daystart: { $gte: startDate, $lte: endDate } },
+        { dayend: { $gte: startDate, $lte: endDate } },
+      ],
+    });
+
+    console.log("reservationsOnDate----------------------", reservationsOnDate);
+
+    // Extract boats document with reservations on the specified date
+    const boatsWithReservations = reservationsOnDate.map(
+      (reservation) => reservation.documentBoat
+    );
+
+    // Find boats that are not in the list of reserved boats: search in Boat Model witch id is NOT in boatsWithReservations
+    const freeBoatsOnDate = await BoatModel.find({
+      _id: { $nin: boatsWithReservations },
+    });
+
+    res.json(freeBoatsOnDate);
+  } catch (error) {
+    console.error(
       `Error retrieving free boats on the specified date:${requestedDate} -------🦑`,
+      error
+    );
+    res.status(500).send("Internal server error");
+  }
+};
+
+export const getRentedBoatsOnPeriod = async (req, res) => {
+  try {
+    const requestedDate = new Date(req.params.date);
+    // Calculate the next date to create a range for reservations- ONLY ONE DAY RENTAL
+    const nextDate = new Date(requestedDate.getTime() + 24 * 60 * 60 * 1000);
+
+    // Filter reservations on the specified one date for ONE DAY range in RENTAL collection
+    const reservationsOnDate = await RentalModel.find({
+      daystart: { $gte: requestedDate, $lt: nextDate },
+    });
+    // Extract boats document with reservations on the specified date
+    const boatsWithReservations = reservationsOnDate.map(
+      (reservation) => reservation.documentBoat
+    );
+    res.json(boatsWithReservations);
+  } catch (error) {
+    console.error(
+      `Error retrieving rented boats on the specified date:${requestedDate} -------🦑`,
       error
     );
     res.status(500).send("Internal server error");

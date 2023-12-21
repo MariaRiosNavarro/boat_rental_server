@@ -13,7 +13,8 @@ const app = express();
 // app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cors());
-app.use("images", express.static("/images"));
+app.use(express.json());
+app.use("/images", express.static("./images"));
 
 app.use("/api/boats", boatsRouter);
 app.use("/api/rentals", rentalsRouter);

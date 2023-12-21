@@ -6,8 +6,10 @@ import {
   getOneBoat,
   removeOneBoat,
   editOneBoat,
-  getAllNotRentedBoats,
   getFreeBoatsOnDate,
+  getAllNotRentedBoats,
+  getAllRentedBoats,
+  getRentedBoatsOnDate,
 } from "./controller.js";
 
 export const router = new express.Router();
@@ -19,7 +21,9 @@ router.post("/", upload.single("img"), addOneBoat);
 router.put("/:id", upload.single("img"), editOneBoat);
 router.delete("/:id", removeOneBoat);
 
-//routes for free boots & no rental today
+//------------------------------------  BOATS + RENTALS combined ROUTES
 
-router.get("/free-boats", getAllNotRentedBoats);
+router.get("/free-boats/all", getAllNotRentedBoats); // with only /free-boats I have a conflict with, router.get("/:id", getOneBoat);
 router.get("/free-boats/:date", getFreeBoatsOnDate);
+router.get("/reserved-boats/all", getAllRentedBoats);
+router.get("/reserved-boats/:date", getRentedBoatsOnDate);

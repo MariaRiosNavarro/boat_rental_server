@@ -10,6 +10,8 @@ import {
   getAllNotRentedBoats,
   getAllRentedBoats,
   getRentedBoatsOnDate,
+  getFreeBoatsOnPeriod,
+  getRentedBoatsOnPeriod,
 } from "./controller.js";
 
 export const router = new express.Router();
@@ -24,6 +26,14 @@ router.delete("/:id", removeOneBoat);
 //------------------------------------  BOATS + RENTALS combined ROUTES
 
 router.get("/free-boats/all", getAllNotRentedBoats); // with only /free-boats I have a conflict with, router.get("/:id", getOneBoat);
-router.get("/free-boats/:date", getFreeBoatsOnDate);
 router.get("/reserved-boats/all", getAllRentedBoats);
+
+// ----------------------------------- One Day
+
+router.get("/free-boats/:date", getFreeBoatsOnDate);
 router.get("/reserved-boats/:date", getRentedBoatsOnDate);
+
+// ------------------------Time Period
+
+router.get("/free-boats/:date/:end", getFreeBoatsOnPeriod);
+router.get("/reserved-boats/:date/:end", getRentedBoatsOnPeriod);

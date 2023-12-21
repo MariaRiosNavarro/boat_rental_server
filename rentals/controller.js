@@ -13,6 +13,10 @@ export const addOneRental = async (req, res) => {
       rentalInfo.daystart = new Date(rentalInfo.daystart);
     }
 
+    if (rentalInfo && rentalInfo.dayend) {
+      rentalInfo.dayend = new Date(rentalInfo.dayend);
+    }
+
     rentalInfo.referenceBootId = id;
     rentalInfo.documentBoat = id;
 
@@ -35,6 +39,7 @@ export const getOneRental = async (req, res) => {
       .exec();
 
     console.log("____getOneRental________📅", boatDoc);
+
     res.json({ isRented: !!boatDoc, boat: boatDoc });
   } catch (error) {
     console.error("Error getting one rental -------🦑", error);
@@ -73,6 +78,10 @@ export const editOneRental = async (req, res) => {
     // Parse the date string in the new rental data
     if (newRentalData && newRentalData.daystart) {
       newRentalData.daystart = new Date(newRentalData.daystart);
+    }
+
+    if (newRentalData && newRentalData.dayend) {
+      newRentalData.dayend = new Date(newRentalData.dayend);
     }
 
     const updateRental = await RentalModel.findByIdAndUpdate(

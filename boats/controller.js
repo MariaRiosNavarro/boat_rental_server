@@ -141,7 +141,6 @@ export const getFreeBoatsOnDate = async (req, res) => {
       `Error retrieving free boats on the specified date:${requestedDate} -------🦑`,
       error
     );
-
     res.status(500).send("Internal server error");
   }
 };

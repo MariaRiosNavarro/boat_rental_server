@@ -8,6 +8,9 @@ import { router as rentalsRouter } from "./rentals/router.js";
 await mongoose.connect(process.env.MONGODB_URI);
 
 const app = express();
+// //body
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cors());
 app.use("images", express.static("/images"));

@@ -8,7 +8,6 @@ const rentalSchema = new mongoose.Schema({
   username: String,
   daystart: Date,
   dayend: Date,
-  price: Number,
   bonus: Boolean,
 });
 

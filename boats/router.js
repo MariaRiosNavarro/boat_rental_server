@@ -6,9 +6,6 @@ import {
   getOneBoat,
   removeOneBoat,
   editOneBoat,
-  getFreeBoatsOnDate,
-  getAllNotRentedBoats,
-  getRentedBoatsOnDate,
 } from "./controller.js";
 
 export const router = new express.Router();

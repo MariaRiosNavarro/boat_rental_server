@@ -1,5 +1,4 @@
 import { BoatModel } from "./model.js";
-import { RentalModel } from "../rentals/model.js";
 import fs from "fs/promises";
 
 export const getAllBoats = async (req, res) => {

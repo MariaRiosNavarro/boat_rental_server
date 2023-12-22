@@ -12,6 +12,8 @@ import {
   getAllNotRentedBoats,
   getFreeBoatsOnDate,
   getRentedBoatsOnDate,
+  getAllReservationsOneBoat,
+  checkBoatAvailability,
 } from "./controller.js";
 
 export const router = new express.Router();
@@ -36,3 +38,7 @@ router.get("/reserved-boats/:date", getRentedBoatsOnDate);
 
 router.get("/reserved-boats/:date/:end", getRentedBoatsOnPeriod);
 router.get("/free-boats/:date/:end", getFreeBoatsOnPeriod);
+
+//-------------------------One Boat
+router.get("/reservations-one-boat/:boatId", getAllReservationsOneBoat);
+router.get("/reservations-one-boat/:boatId/:start/:end", checkBoatAvailability);

@@ -284,3 +284,64 @@ export const getFreeBoatsOnPeriod = async (req, res) => {
     res.status(500).send("Internal server error");
   }
 };
+
+export const getAllReservationsOneBoat = async (req, res) => {
+  try {
+    const { boatId } = req.params;
+
+    const reservations = await RentalModel.find({
+      documentBoat: boatId,
+    })
+      .populate("documentBoat")
+      .exec();
+
+    res.json(reservations);
+  } catch (error) {
+    console.error(
+      "Error getting all reservations for one boat -------🦑",
+      error
+    );
+    res.status(500).send("Internal server error");
+  }
+};
+
+export const checkBoatAvailability = async (req, res) => {
+  try {
+    const { boatId, start, end } = req.params;
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    // Find all bookings for the boat with the specified ID and in the date range
+    const overlappingReservations = await RentalModel.find({
+      documentBoat: boatId,
+      $or: [
+        {
+          $and: [
+            { daystart: { $gte: startDate } },
+            { daystart: { $lte: endDate } },
+          ],
+        },
+        {
+          $and: [
+            { dayend: { $gte: startDate } },
+            { dayend: { $lte: endDate } },
+          ],
+        },
+        {
+          $and: [
+            { daystart: { $lte: startDate } },
+            { dayend: { $gte: endDate } },
+          ],
+        },
+      ],
+    });
+
+    // If there are overlapping bookings, the boat is booked in that date range.
+    const isReserved = overlappingReservations.length > 0;
+
+    res.json({ isReserved });
+  } catch (error) {
+    console.error("Error checking boat availability -------🦑", error);
+    res.status(500).send("Internal server error");
+  }
+};

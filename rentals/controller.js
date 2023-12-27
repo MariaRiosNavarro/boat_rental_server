@@ -1,75 +1,174 @@
 import { RentalModel } from "./model.js";
 import { BoatModel } from "../boats/model.js";
 
+// --------------------------------------------------------------------ADD ONE
+
 export const addOneRental = async (req, res) => {
   try {
+    //save Boat Id referenceBootId & rentalInfo. New Id is in this request created, for the reservation
     const { id } = req.params;
+
     const rentalInfo = req.body;
 
     if (!rentalInfo) {
       throw new Error("Request body is undefined or not an object.");
     }
 
+    // handle date for start of the reservation
+
     if (rentalInfo && rentalInfo.daystart) {
       rentalInfo.daystart = new Date(rentalInfo.daystart);
     }
+
+    // handle date for end of the reservation
 
     if (rentalInfo && rentalInfo.dayend) {
       rentalInfo.dayend = new Date(rentalInfo.dayend);
     }
 
+    // Add the id of the params as value for the reference & doc
+
     rentalInfo.referenceBootId = id;
     rentalInfo.documentBoat = id;
 
-    console.log("____addOneRental________📅", rentalInfo);
+    //save
 
     const rental = new RentalModel(rentalInfo);
+
     await rental.save();
-    res.end();
+
+    //Confirmation back
+    res
+      .status(201)
+      .json({
+        success: true,
+        message: "Reservation successfully added ✅",
+      })
+      .end();
+    // Error Handling
   } catch (error) {
-    console.error("Error adding one rental -------🦑", error);
-    res.status(500).send("Internal server error");
+    // Handle errors
+    console.error("Error adding one Reservation -------🦑", error);
+    res.status(500).json({
+      success: false,
+      message: "Error adding one Reservation ❌",
+      error,
+    });
   }
 };
+
+// --------------------------------------------------------------------GET ONE
 
 export const getOneRental = async (req, res) => {
   try {
     const { id } = req.params;
+    //Wait & recibe Data & populate
     const boatDoc = await RentalModel.findById(id)
       .populate("documentBoat")
       .exec();
 
-    console.log("____getOneRental________📅", boatDoc);
+    if (!boatDoc) {
+      return res.status(404).json({ message: "Reservation not found" });
+    }
 
-    res.json({ isRented: !!boatDoc, boat: boatDoc });
+    //Confirmation back  & data to frontend
+
+    res.status(200).json({
+      isReserved: !!boatDoc,
+      success: true,
+      boat: boatDoc,
+      message: `Boat with id= ${id} sucessfully retrieved ✅`,
+    });
   } catch (error) {
-    console.error("Error getting one rental -------🦑", error);
-    res.status(500).send("Internal server error");
+    console.error("Error getting one reservation-------🦑", error);
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving one reservation ❌",
+      error,
+    });
   }
 };
+
+// --------------------------------------------------------------------GET ALL
 
 export const getAllRental = async (req, res) => {
   try {
+    //Wait & recibe Data
     const rentals = await RentalModel.find().populate("documentBoat").exec();
-    console.log("____getAllRental________📅", rentals);
-    res.json(rentals);
+    res
+      .status(200)
+      //Confirmation back & data to frontend
+      .json({
+        success: true,
+        message: "Reservations successfully retrieved ✅",
+        data: rentals,
+      });
   } catch (error) {
-    console.error("Error getting all rentals -------🦑", error);
-    res.status(500).send("Internal server error");
+    // Handle errors
+    console.error("Error retrieving all Reservations -------🦑", error);
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving all Reservations ❌",
+      error,
+    });
   }
 };
+
+// --------------------------------------------------------------------GET ALL + Date
+
+export const getAllRentalsFromADate = async (req, res) => {
+  try {
+    const date = new Date(req.params.date);
+
+    const reservationsOnDate = await RentalModel.find({
+      $or: [
+        // Reservation starts on or after the specified date
+        { daystart: { $gte: date } },
+        // Reservation ends on or after the specified date
+        { dayend: { $gte: date } },
+      ],
+    }) // Reservation start date is greater than or equal to the specified start date.
+      .populate("documentBoat")
+      .exec();
+
+    //Confirmation back & data to frontend
+    res.status(200).json({
+      success: true,
+      message: "Reservations successfully retrieved ✅",
+      data: reservationsOnDate,
+    });
+  } catch (error) {
+    // Handle errors
+    console.error("Error retrieving all Reservations -------🦑", error);
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving all Reservations ❌",
+      error,
+    });
+  }
+};
+
+//--------------------------------------------------------------------DELETE ONE
 
 export const removeOneRental = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedRent = await RentalModel.findByIdAndDelete(id);
-    console.log("____removeOneRental________📅", deletedRent);
-    res.end();
+    // Remove the Reservation
+    await RentalModel.findByIdAndDelete(id);
+
+    //sucess true
+    res.status(200).json({
+      success: true,
+      message: `Reservation with id= ${id} successfully deleted ✅`,
+    });
   } catch (error) {
-    console.error("Error removing one rental -------🦑", error);
-    res.status(500).send("Internal server error");
+    res
+      .status(500)
+      .json({ success: false, message: "Error removing one boat❌", error });
   }
 };
+
+// --------------------------------------------------------------------EDIT ONE
 
 export const editOneRental = async (req, res) => {
   try {
@@ -80,11 +179,11 @@ export const editOneRental = async (req, res) => {
     if (newRentalData && newRentalData.daystart) {
       newRentalData.daystart = new Date(newRentalData.daystart);
     }
-
+    // Parse the date string in the new rental data
     if (newRentalData && newRentalData.dayend) {
       newRentalData.dayend = new Date(newRentalData.dayend);
     }
-
+    // update Data
     const updateRental = await RentalModel.findByIdAndUpdate(
       id,
       newRentalData,
@@ -93,104 +192,72 @@ export const editOneRental = async (req, res) => {
       }
     );
 
-    console.log("____editOneRental________📅", updateRental);
-    res.end();
+    //  Confirmation back
+    res.status(201).json({
+      success: true,
+      message: `Reservation with id= ${id} successfully updated ✅`,
+      data: newRentalData,
+    });
   } catch (error) {
-    console.error("Error editing one rental -------🦑", error);
-    res.status(500).send("Internal server error");
+    // Handle errors
+    console.error("Error editing one Reservation -------🦑", error);
+    res.status(500).json({
+      success: false,
+      message: "Error editing one Reservation  ❌",
+      error,
+    });
   }
 };
 
-//------------------------------------------------------------------------------BOATS + RENTALS combined ROUTES
+//# --------BOATS + RENTALS combined ROUTES---------------------------------------------------------------------
+//# ---------------------------------------BOATS + RENTALS combined ROUTES--------------------------------------
+//# ----------------------------------------------------------------------BOATS + RENTALS combined ROUTES-------
 
-export const getFreeBoatsOnDate = async (req, res) => {
-  try {
-    const requestedDate = new Date(req.params.date);
+// ----------------------------------------------------------------
+// ---------------------------------GET ALL Boats------------------
+// ----------------------------------------------------------------
 
-    // Calculate the next date to create a range for reservations- ONLY ONE DAY RENTAL
-    const nextDate = new Date(requestedDate.getTime() + 24 * 60 * 60 * 1000);
-
-    // Filter reservations on the specified one date for ONE DAY range in RENTAL collection
-    const reservationsOnDate = await RentalModel.find({
-      daystart: { $gte: requestedDate, $lt: nextDate },
-    });
-
-    // Extract boats document with reservations on the specified date
-    const boatsWithReservations = reservationsOnDate.map(
-      (reservation) => reservation.documentBoat
-    );
-
-    // Find boats that are not in the list of reserved boats: search in Boat Model witch id is NOT in boatsWithReservations
-    const freeBoatsOnDate = await BoatModel.find({
-      _id: { $nin: boatsWithReservations },
-    });
-
-    res.json(freeBoatsOnDate);
-  } catch (error) {
-    console.error(
-      `Error retrieving free boats on the specified date:${requestedDate} -------🦑`,
-      error
-    );
-    res.status(500).send("Internal server error");
-  }
-};
+//! ------------ get all the boats without any reservation---------------------------get all the boats without any reservation
 
 export const getAllNotRentedBoats = async (req, res) => {
   try {
     const allReservations = await RentalModel.find();
-    console.log("allreser------------", allReservations);
 
     // Extract boats with reservations
     const boatsWithReservations = allReservations.map(
       (reservation) => reservation.documentBoat
     );
-    console.log("boatsWithReservations------------", boatsWithReservations);
 
     // Find boats that are not in the list of reserved boats
     const boatsWithoutReservations = await BoatModel.find({
       _id: { $nin: boatsWithReservations },
     });
 
-    res.json(boatsWithoutReservations);
+    res
+      .status(200)
+      //Confirmation back & data to frontend
+      .json({
+        success: true,
+        message: "Free Boats successfully retrieved ✅",
+        data: boatsWithoutReservations,
+      });
   } catch (error) {
-    console.error("Error retrieving boats without reservations:", error);
-    res.status(500).send("Internal server error");
-  }
-};
-
-export const getRentedBoatsOnDate = async (req, res) => {
-  try {
-    const requestedDate = new Date(req.params.date);
-    // Calculate the next date to create a range for reservations- ONLY ONE DAY RENTAL
-    const nextDate = new Date(requestedDate.getTime() + 24 * 60 * 60 * 1000);
-
-    // Filter reservations on the specified one date for ONE DAY range in RENTAL collection
-    const reservationsOnDate = await RentalModel.find({
-      daystart: { $gte: requestedDate, $lt: nextDate },
+    // Handle errors
+    console.error("Error retrieving Free Boats -------🦑", error);
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving Free Boats❌",
+      error,
     });
-    // Extract boats document with reservations on the specified date
-    const boatsWithReservations = reservationsOnDate
-      .map((reservation) => reservation.documentBoat)
-      .populate("documentBoat")
-      .exec();
-
-    res.json(boatsWithReservations);
-  } catch (error) {
-    console.error(
-      `Error retrieving rented boats on the specified date:${requestedDate} -------🦑`,
-      error
-    );
-    res.status(500).send("Internal server error");
   }
 };
+
+//! ------------get all the boats with a reserve in a given period of time.---------------------get all the boats with a reserve in a given period of time.
 
 export const getRentedBoatsOnPeriod = async (req, res) => {
   try {
-    const startDate = new Date(req.params.date);
+    const startDate = new Date(req.params.start);
     const endDate = new Date(req.params.end);
-
-    console.log("startdate----------------------", startDate);
-    console.log("endDate----------------------", endDate);
 
     // Filter reservations that overlap with the specified date range in RENTAL collection
     const reservationsOnDate = await RentalModel.find({
@@ -222,26 +289,34 @@ export const getRentedBoatsOnPeriod = async (req, res) => {
       .populate("documentBoat")
       .exec();
 
-    console.log("reservationsOnDate----------------------", reservationsOnDate);
-    res.json(reservationsOnDate);
+    res
+      .status(200)
+      //Confirmation back & data to frontend
+      .json({
+        success: true,
+        message: `Reserved boats from ${req.params.start} to ${req.params.end}  successfully retrieved ✅`,
+        data: reservationsOnDate,
+      });
   } catch (error) {
+    // Handle errors
     console.error(
-      `Error retrieving free boats on the specified date:${requestedDate} -------🦑`,
+      `Error retrieving all Reserved boats from ${req.params.start} to ${req.params.end}-------🦑`,
       error
     );
-    res.status(500).send("Internal server error");
+    res.status(500).json({
+      success: false,
+      message: `Error retrieving all Reserved boats from ${req.params.start} to ${req.params.end} ❌`,
+      error,
+    });
   }
 };
 
-// With othe time
+//! ------------get all free boats in a given period of time.---------------------get all free boats in a given period of time
 
 export const getFreeBoatsOnPeriod = async (req, res) => {
   try {
-    const startDate = new Date(req.params.date);
+    const startDate = new Date(req.params.start);
     const endDate = new Date(req.params.end);
-
-    console.log("startdate----------------------", startDate);
-    console.log("endDate----------------------", endDate);
 
     // Filter reservations that overlap with the specified date range in RENTAL collection (see above the coments)
     const reservationsOnDate = await RentalModel.find({
@@ -267,8 +342,6 @@ export const getFreeBoatsOnPeriod = async (req, res) => {
       ],
     });
 
-    console.log("reservationsOnDate----------------------", reservationsOnDate);
-
     // Extract boats document with reservations on the specified date
     const boatsWithReservations = reservationsOnDate.map(
       (reservation) => reservation.documentBoat
@@ -279,35 +352,77 @@ export const getFreeBoatsOnPeriod = async (req, res) => {
       _id: { $nin: boatsWithReservations },
     });
 
-    res.json(freeBoatsOnPeriod);
+    res
+      .status(200)
+      //Confirmation back & data to frontend
+      .json({
+        success: true,
+        message: `Free boats from ${req.params.start} to ${req.params.end}  successfully retrieved ✅`,
+        data: freeBoatsOnPeriod,
+      });
   } catch (error) {
+    // Handle errors
     console.error(
-      `Error retrieving free boats on the specified date:${requestedDate} -------🦑`,
+      `Error retrieving all Free boats from ${req.params.start} to ${req.params.end}-------🦑`,
       error
     );
-    res.status(500).send("Internal server error");
+    res.status(500).json({
+      success: false,
+      message: `Error retrieving all Free boats from ${req.params.start} to ${req.params.end} ❌`,
+      error,
+    });
   }
 };
+
+// ----------------------------------------------------------------
+// ---------------------------------GET ONE Boat------------------
+// ----------------------------------------------------------------
+
+//! ------------ get all reservation of ONE BOAT------------------------------------------------------get all reservation of ONE BOAT
 
 export const getAllReservationsOneBoat = async (req, res) => {
   try {
     const { boatId } = req.params;
 
+    // Check if the boat exists
+    const boatExists = await BoatModel.exists({ _id: boatId });
+
+    if (!boatExists) {
+      return res.status(404).json({
+        success: false,
+        message: `Boat with ID ${boatId} not found ❌`,
+      });
+    }
+
+    // Get reservations for the boat
     const reservations = await RentalModel.find({
       documentBoat: boatId,
     })
       .populate("documentBoat")
       .exec();
 
-    res.json(reservations);
+    // Send response to the frontend
+    res.status(200).json({
+      success: true,
+      message: `Reservations of the boat Id = ${boatId} successfully retrieved ✅`,
+      data: reservations,
+    });
   } catch (error) {
+    // Handle errors
     console.error(
-      "Error getting all reservations for one boat -------🦑",
+      `Error retrieving Reservations of the boat Id = ${boatId} 🦑`,
       error
     );
-    res.status(500).send("Internal server error");
+
+    res.status(500).json({
+      success: false,
+      message: `Error retrieving Reservations of the boat Id = ${boatId} ❌`,
+      error: error.message,
+    });
   }
 };
+
+//! ------------ get availabity of ONE BOAT in one Period of time-----------------------get availabity of ONE BOAT in one Period of time
 
 export const checkBoatAvailability = async (req, res) => {
   try {
@@ -343,9 +458,26 @@ export const checkBoatAvailability = async (req, res) => {
     // If there are overlapping bookings, the boat is booked in that date range.
     const isReserved = overlappingReservations.length > 0;
 
-    res.json({ isReserved });
+    const notReserved = isReserved ? "" : "not";
+    const iconReserved = isReserved ? "❌" : "✅";
+
+    // Send response to the frontend
+    res.status(200).json({
+      isReserved,
+      message: `Boat Id = ${boatId} is ${notReserved} from ${req.params.start} to ${req.params.end} reserved ${iconReserved}`,
+      success: true,
+    });
   } catch (error) {
-    console.error("Error checking boat availability -------🦑", error);
-    res.status(500).send("Internal server error");
+    // Handle errors
+    console.error(
+      `Error retrieving information of reservation of the boat Id = ${boatId} 🦑`,
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      message: `Error retrieving information of reservation of the boat Id = ${boatId} ❌`,
+      error: error.message,
+    });
   }
 };

@@ -10,16 +10,16 @@ import {
   getRentedBoatsOnPeriod,
   getFreeBoatsOnPeriod,
   getAllNotRentedBoats,
-  getFreeBoatsOnDate,
-  getRentedBoatsOnDate,
   getAllReservationsOneBoat,
   checkBoatAvailability,
+  getAllRentalsFromADate,
 } from "./controller.js";
 
 export const router = new express.Router();
 const upload = multer({ dest: "./images" });
 
 router.get("/", getAllRental);
+router.get("/date/:date", getAllRentalsFromADate);
 router.get("/:id", getOneRental);
 router.post("/:id", upload.none(), addOneRental);
 router.put("/:id", upload.none(), editOneRental);
@@ -29,16 +29,11 @@ router.delete("/:id", removeOneRental);
 
 router.get("/free-boats/all", getAllNotRentedBoats); // with only /free-boats I have a conflict with, router.get("/:id", getOneBoat);
 
-// ----------------------------------- One Day
-
-router.get("/free-boats/:date", getFreeBoatsOnDate);
-router.get("/reserved-boats/:date", getRentedBoatsOnDate);
-
 // ------------------------Time Period
 
-router.get("/reserved-boats/:date/:end", getRentedBoatsOnPeriod);
-router.get("/free-boats/:date/:end", getFreeBoatsOnPeriod);
+router.get("/reserved-boats/:start/:end", getRentedBoatsOnPeriod);
+router.get("/free-boats/:start/:end", getFreeBoatsOnPeriod);
 
 //-------------------------One Boat
 router.get("/reservations-one-boat/:boatId", getAllReservationsOneBoat);
-router.get("/reservations-one-boat/:boatId/:start/:end", checkBoatAvailability);
+router.get("/reservation-one-boat/:boatId/:start/:end", checkBoatAvailability);

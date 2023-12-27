@@ -18,7 +18,7 @@ export const getAllBoats = async (req, res) => {
   } catch (error) {
     // Handle errors
     console.error("Error retrieving all boats -------🦑", error);
-    res.status(500).send({
+    res.status(500).json({
       success: false,
       message: "Error retrieving all boats ❌",
       error,
@@ -35,7 +35,7 @@ export const getOneBoat = async (req, res) => {
     const boat = await BoatModel.findOne({ _id: id });
     // No Response handling
 
-    if (!dbResponse) {
+    if (!boat) {
       return res.status(404).json({ message: "Boat not found" });
     }
     //Confirmation back  & data to frontend
@@ -47,7 +47,7 @@ export const getOneBoat = async (req, res) => {
   } catch (error) {
     // Handle errors
     console.error("Error retrieving all boats -------🦑", error);
-    res.status(500).send({
+    res.status(500).json({
       success: false,
       message: "Error retrieving one boat ❌",
       error,
@@ -64,34 +64,31 @@ export const addOneBoat = async (req, res) => {
       boat.img = req.file.path;
     }
     // Check if at least the boat name is present
-    if (!boat.boatname) {
-      return res.status(400).json({ error: "Boat Name is necessary." });
-    }
+    // if (!boat.boatname) {
+    //   return res.status(400).json({ error: "Boat Name is necessary." });
+    // }
     // Save the new Boot in db
-    const responseSave = await boat.save();
+    await boat.save();
 
     //Confirmation back
-    if (responseSave.acknowledged) {
-      res
-        .status(201)
-        .json({ success: true, message: "Boat successfully added ✅" })
-        .end();
-    } else {
-      // Handle Error in Database
-      res
-        .status(500)
-        .json({
-          success: false,
-          message: "Insert operation not acknowledged ❌",
-          error,
-        })
-        .end();
-    }
-  } catch (error) {
-    console.error("Error adding one boat -------🦑", error);
+
     res
-      .status(500)
-      .json({ success: false, message: "Error adding one boat❌", error });
+      .status(201)
+      .json({
+        success: true,
+        message: "Boat successfully added ✅",
+      })
+      .end();
+
+    // Error Handling
+  } catch (error) {
+    // Handle errors
+    console.error("Error adding one boat -------🦑", error);
+    res.status(500).json({
+      success: false,
+      message: "Error adding one boat ❌",
+      error,
+    });
   }
 };
 
@@ -106,11 +103,11 @@ export const removeOneBoat = async (req, res) => {
     const deletedBot = await BoatModel.findOneAndDelete({ _id: id });
 
     // handle if data is not deleted
-    if (!deletedBot.deletedCount) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Boat not found" });
-    }
+    // if (!deletedBot.deletedCount) {
+    //   return res
+    //     .status(404)
+    //     .json({ success: false, message: "Boat not found" });
+    // }
 
     // delete image
     if (boat) {
@@ -119,12 +116,11 @@ export const removeOneBoat = async (req, res) => {
 
     //sucess true
     console.log("____deletedOne________⛵︎", deletedBot);
+
     res.status(200).json({
       success: true,
       message: `Movie with id= ${id} successfully deleted ✅`,
     });
-
-    // res.end();
   } catch (error) {
     res
       .status(500)

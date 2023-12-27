@@ -222,13 +222,11 @@ export const editOneRental = async (req, res) => {
 export const getAllNotRentedBoats = async (req, res) => {
   try {
     const allReservations = await RentalModel.find();
-    console.log("allreser------------", allReservations);
 
     // Extract boats with reservations
     const boatsWithReservations = allReservations.map(
       (reservation) => reservation.documentBoat
     );
-    console.log("boatsWithReservations------------", boatsWithReservations);
 
     // Find boats that are not in the list of reserved boats
     const boatsWithoutReservations = await BoatModel.find({
@@ -319,9 +317,6 @@ export const getFreeBoatsOnPeriod = async (req, res) => {
   try {
     const startDate = new Date(req.params.start);
     const endDate = new Date(req.params.end);
-
-    console.log("startdate----------------------", startDate);
-    console.log("endDate----------------------", endDate);
 
     // Filter reservations that overlap with the specified date range in RENTAL collection (see above the coments)
     const reservationsOnDate = await RentalModel.find({

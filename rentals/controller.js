@@ -194,23 +194,27 @@ export const getRentedBoatsOnPeriod = async (req, res) => {
 
     // Filter reservations that overlap with the specified date range in RENTAL collection
     const reservationsOnDate = await RentalModel.find({
+      // Use the $or operator to find documents that match any of the specified conditions.
       $or: [
+        // Condition 1: Reservation starts and ends within the specified date range.
         {
           $and: [
-            { daystart: { $gte: startDate } },
-            { daystart: { $lte: endDate } },
+            { daystart: { $gte: startDate } }, // Reservation start date is greater than or equal to the specified start date.
+            { daystart: { $lte: endDate } }, // Reservation end date is less than or equal to the specified end date.
           ],
         },
+        // Condition 2: Reservation ends within the specified date range.
         {
           $and: [
-            { dayend: { $gte: startDate } },
-            { dayend: { $lte: endDate } },
+            { dayend: { $gte: startDate } }, // Reservation end date is greater than or equal to the specified start date.
+            { dayend: { $lte: endDate } }, // Reservation end date is less than or equal to the specified end date.
           ],
         },
+        // Condition 3: Reservation spans the entire specified date range.
         {
           $and: [
-            { daystart: { $lte: startDate } },
-            { dayend: { $gte: endDate } },
+            { daystart: { $lte: startDate } }, // Reservation start date is less than or equal to the specified start date.
+            { dayend: { $gte: endDate } }, // Reservation end date is greater than or equal to the specified end date.
           ],
         },
       ],
@@ -239,7 +243,7 @@ export const getFreeBoatsOnPeriod = async (req, res) => {
     console.log("startdate----------------------", startDate);
     console.log("endDate----------------------", endDate);
 
-    // Filter reservations that overlap with the specified date range in RENTAL collection
+    // Filter reservations that overlap with the specified date range in RENTAL collection (see above the coments)
     const reservationsOnDate = await RentalModel.find({
       $or: [
         {

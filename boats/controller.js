@@ -63,10 +63,7 @@ export const addOneBoat = async (req, res) => {
     if (req.file) {
       boat.img = req.file.path;
     }
-    // Check if at least the boat name is present
-    // if (!boat.boatname) {
-    //   return res.status(400).json({ error: "Boat Name is necessary." });
-    // }
+
     // Save the new Boot in db
     await boat.save();
 
@@ -100,23 +97,13 @@ export const removeOneBoat = async (req, res) => {
     // Save Boat to remove later the img
     const boat = await BoatModel.findOne({ _id: id });
     // Remove the Boot
-    const deletedBot = await BoatModel.findOneAndDelete({ _id: id });
-
-    // handle if data is not deleted
-    // if (!deletedBot.deletedCount) {
-    //   return res
-    //     .status(404)
-    //     .json({ success: false, message: "Boat not found" });
-    // }
+    await BoatModel.findOneAndDelete({ _id: id });
 
     // delete image
     if (boat) {
       await fs.unlink(boat.img);
     }
-
     //sucess true
-    console.log("____deletedOne________⛵︎", deletedBot);
-
     res.status(200).json({
       success: true,
       message: `Movie with id= ${id} successfully deleted ✅`,
@@ -157,8 +144,6 @@ export const editOneBoat = async (req, res) => {
     const updateBoat = await BoatModel.findByIdAndUpdate(id, newBoatData, {
       new: true,
     });
-
-    console.log("Updated Boat:", updateBoat);
 
     // remove the old image if the req has a new image
     // error handling no oldimage need it

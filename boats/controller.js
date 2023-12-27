@@ -1,5 +1,15 @@
 import { BoatModel } from "./model.js";
 import fs from "fs/promises";
+import { v2 as cloudinary } from "cloudinary";
+
+const cloud_url = process.env.CLOUDINARY_URL;
+
+// set the cloudinary config to use your environment variables
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET,
+});
 
 // --------------------------------------------------------------------GET ALL
 
@@ -61,7 +71,8 @@ export const addOneBoat = async (req, res) => {
   try {
     const boat = new BoatModel(req.body);
     if (req.file) {
-      boat.img = req.file.path;
+      const result = await cloudinary.uploader.upload(req.file.path);
+      boat.img = result.secure_url;
     }
 
     // Save the new Boot in db

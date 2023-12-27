@@ -5,6 +5,8 @@ import mongoose from "mongoose";
 import { router as boatsRouter } from "./boats/router.js";
 import { router as rentalsRouter } from "./rentals/router.js";
 
+// mongodb Atlas
+
 await mongoose.connect(process.env.MONGODB_URI);
 
 const app = express();
@@ -14,7 +16,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use("/images", express.static("./images"));
+// app.use("/images", express.static("./images"));
 
 app.use("/api/boats", boatsRouter);
 app.use("/api/rentals", rentalsRouter);

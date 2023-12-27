@@ -121,7 +121,12 @@ export const getAllRentalsFromADate = async (req, res) => {
     const date = new Date(req.params.date);
 
     const reservationsOnDate = await RentalModel.find({
-      daystart: { $gte: date },
+      $or: [
+        // Reservation starts on or after the specified date
+        { daystart: { $gte: date } },
+        // Reservation ends on or after the specified date
+        { dayend: { $gte: date } },
+      ],
     }) // Reservation start date is greater than or equal to the specified start date.
       .populate("documentBoat")
       .exec();
@@ -291,18 +296,18 @@ export const getRentedBoatsOnPeriod = async (req, res) => {
       //Confirmation back & data to frontend
       .json({
         success: true,
-        message: `Reserved boats from ${startDate} to ${endDate}  successfully retrieved ✅`,
+        message: `Reserved boats from ${req.params.start} to ${req.params.end}  successfully retrieved ✅`,
         data: reservationsOnDate,
       });
   } catch (error) {
     // Handle errors
     console.error(
-      `Error retrieving all Reserved boats from ${startDate} to ${endDate}-------🦑`,
+      `Error retrieving all Reserved boats from ${req.params.start} to ${req.params.end}-------🦑`,
       error
     );
     res.status(500).json({
       success: false,
-      message: `Error retrieving all Reserved boats from ${startDate} to ${endDate} ❌`,
+      message: `Error retrieving all Reserved boats from ${req.params.start} to ${req.params.end} ❌`,
       error,
     });
   }
@@ -368,7 +373,7 @@ export const getFreeBoatsOnPeriod = async (req, res) => {
     );
     res.status(500).json({
       success: false,
-      message: `Error retrieving all Free boats from ${startDate} to ${endDate} ❌`,
+      message: `Error retrieving all Free boats from ${req.params.start} to ${req.params.end} ❌`,
       error,
     });
   }

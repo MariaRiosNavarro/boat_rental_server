@@ -66,7 +66,7 @@ export const getOneBoat = async (req, res) => {
     //Confirmation back  & data to frontend
     res.status(200).json({
       success: true,
-      message: `Movie with id= ${id} sucessfully retrieved ✅`,
+      message: `Boat with id= ${id} sucessfully retrieved ✅`,
       data: boat,
     });
   } catch (error) {
@@ -141,7 +141,7 @@ export const removeOneBoat = async (req, res) => {
     //sucess true
     res.status(200).json({
       success: true,
-      message: `Movie with id= ${id} successfully deleted ✅`,
+      message: `Boat with id= ${id} successfully deleted ✅`,
     });
   } catch (error) {
     res

@@ -106,6 +106,7 @@ export const addOneBoat = async (req, res) => {
       .json({
         success: true,
         message: "Boat successfully added ✅",
+        data: boat, //new
       })
       .end();
 
@@ -116,7 +117,7 @@ export const addOneBoat = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error adding one boat ❌",
-      error,
+      error: error.message, //new
     });
   }
 };

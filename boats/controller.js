@@ -1,5 +1,30 @@
 import { BoatModel } from "./model.js";
 import fs from "fs/promises";
+import { v2 as cloudinary } from "cloudinary";
+import multer from "multer";
+
+const cloud_url = process.env.CLOUDINARY_URL;
+
+// set the cloudinary config to use your environment variables
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET,
+});
+
+async function handleUpload(file) {
+  const res = await cloudinary.uploader.upload(file, {
+    resource_type: "auto",
+  });
+  return res;
+}
+
+async function handleDelete(file) {
+  const res = await cloudinary.uploader.destroy(file, {
+    resource_type: "image",
+  });
+  return res;
+}
 
 // --------------------------------------------------------------------GET ALL
 
@@ -60,8 +85,13 @@ export const getOneBoat = async (req, res) => {
 export const addOneBoat = async (req, res) => {
   try {
     const boat = new BoatModel(req.body);
+    // cloudinary
     if (req.file) {
-      boat.img = req.file.path;
+      const b64 = Buffer.from(req.file.buffer).toString("base64");
+      let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+      const cldRes = await handleUpload(dataURI);
+      console.log(cldRes.secure_url);
+      boat.img = cldRes.secure_url;
     }
 
     // Save the new Boot in db
@@ -128,31 +158,35 @@ export const editOneBoat = async (req, res) => {
     //save new data & add image if it is in the request
     const newBoatData = { ...req.body };
 
-    let newImage;
-
+    // cloudinary
     if (req.file) {
-      newImage = req.file.path;
-      newBoatData.img = newImage;
-    }
+      const b64 = Buffer.from(req.file.buffer).toString("base64");
+      let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
 
-    //check if old Data has a Image
-    const oldData = await BoatModel.findById(id);
-    const oldImage = oldData.img;
+      // check if old Data has a Image
+      const oldData = await BoatModel.findById(id);
+      const oldImage = oldData.img;
+
+      // remove the old image if the req has a new image
+      // error handling no oldimage need it
+
+      if (req.file && oldImage) {
+        await handleDelete(oldImage);
+      } else {
+        console.log("Image don´t change");
+        // return
+      }
+
+      const cldRes = await handleUpload(dataURI);
+      console.log(cldRes.secure_url);
+      newBoatData.img = cldRes.secure_url;
+    }
 
     // Update Data
 
     const updateBoat = await BoatModel.findByIdAndUpdate(id, newBoatData, {
       new: true,
     });
-
-    // remove the old image if the req has a new image
-    // error handling no oldimage need it
-
-    if (newImage && oldImage) {
-      await fs.unlink(oldImage);
-    } else {
-      console.log("Image don´t change");
-    }
 
     //  Confirmation back
     res.status(201).json({

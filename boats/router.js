@@ -17,9 +17,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_SECRET,
 });
 
-const storage = multer.memoryStorage(); // Use memory storage for Cloudinary
-
-const upload = multer({ dest: storage });
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 export const router = new express.Router();
 

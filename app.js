@@ -6,11 +6,9 @@ import { router as boatsRouter } from "./boats/router.js";
 import { router as rentalsRouter } from "./rentals/router.js";
 
 // mongodb Atlas
-
 await mongoose.connect(process.env.MONGODB_URI);
-
 const app = express();
-// //body
+
 // app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
 

@@ -19,7 +19,7 @@ cloudinary.config({
 
 const storage = multer.memoryStorage(); // Use memory storage for Cloudinary
 
-const upload = multer({ storage: storage });
+const upload = multer({ dest: storage });
 
 export const router = new express.Router();
 

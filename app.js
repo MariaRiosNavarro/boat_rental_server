@@ -12,7 +12,16 @@ const app = express();
 // app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(cors());
+// app.use(cors());
+const corsOptions = {
+  origin: "*", // Allow all request
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 // app.use("/images", express.static("./images"));
 

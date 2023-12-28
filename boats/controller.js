@@ -85,8 +85,11 @@ export const getOneBoat = async (req, res) => {
 export const addOneBoat = async (req, res) => {
   try {
     const boat = new BoatModel(req.body);
-    console.log(req.file);
 
+    let array = boat.material;
+    let firstElement = array[0];
+    let materialsArray = JSON.parse(firstElement);
+    boat.material = materialsArray;
     // cloudinary
     if (req.file) {
       const b64 = Buffer.from(req.file.buffer).toString("base64");

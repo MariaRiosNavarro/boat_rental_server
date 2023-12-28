@@ -13,6 +13,7 @@ import {
   getAllReservationsOneBoat,
   checkBoatAvailability,
   getAllRentalsFromADate,
+  getCurrentAndFutureReservationsOneBoat,
 } from "./controller.js";
 
 export const router = new express.Router();
@@ -36,4 +37,9 @@ router.get("/free-boats/:start/:end", getFreeBoatsOnPeriod);
 
 //-------------------------One Boat
 router.get("/reservations-one-boat/:boatId", getAllReservationsOneBoat);
+router.get(
+  "/current-reservations/:boatId",
+  getCurrentAndFutureReservationsOneBoat
+);
+
 router.get("/reservation-one-boat/:boatId/:start/:end", checkBoatAvailability);

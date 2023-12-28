@@ -129,13 +129,12 @@ export const removeOneBoat = async (req, res) => {
     const { id } = req.params;
     // Save Boat to remove later the img
     const boat = await BoatModel.findOne({ _id: id });
+    let image = boat.img;
+    // delete image
+    if (image) await handleDelete(image);
     // Remove the Boot
     await BoatModel.findOneAndDelete({ _id: id });
 
-    // delete image
-    if (boat) {
-      await fs.unlink(boat.img);
-    }
     //sucess true
     res.status(200).json({
       success: true,

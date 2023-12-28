@@ -422,6 +422,62 @@ export const getAllReservationsOneBoat = async (req, res) => {
   }
 };
 
+//! ------------ get all reservation of ONE BOAT current & future------------------
+
+export const getCurrentAndFutureReservationsOneBoat = async (req, res) => {
+  try {
+    const { boatId } = req.params;
+
+    // Check if the boat exists
+    const boatExists = await BoatModel.exists({ _id: boatId });
+
+    if (!boatExists) {
+      return res.status(404).json({
+        success: false,
+        message: `Boat with ID ${boatId} not found ❌`,
+      });
+    }
+
+    // Get current and future reservations for the boat
+    const currentDate = new Date();
+    const reservations = await RentalModel.find({
+      documentBoat: boatId,
+      $or: [
+        {
+          $and: [
+            { daystart: { $lte: currentDate } },
+            { dayend: { $gte: currentDate } },
+          ],
+        },
+        {
+          daystart: { $gte: currentDate },
+        },
+      ],
+    })
+      .populate("documentBoat")
+      .exec();
+
+    // Send response to the frontend
+    res.status(200).json({
+      success: true,
+      message: `Current and future reservations of the boat Id = ${boatId} successfully retrieved ✅`,
+      data: reservations,
+    });
+  } catch (error) {
+    // Handle errors
+    console.error(
+      `Error retrieving current and future reservations of the boat Id = ${boatId}________________🦑`,
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      message: `Error retrieving current and future reservations of the boat Id = ${boatId} ❌`,
+      error: error.message,
+    });
+  }
+};
+
 //! ------------ get availabity of ONE BOAT in one Period of time-----------------------get availabity of ONE BOAT in one Period of time
 
 export const checkBoatAvailability = async (req, res) => {

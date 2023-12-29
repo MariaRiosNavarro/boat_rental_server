@@ -12,6 +12,8 @@ npm i mongodb cors dotenv uuid multer
 
 npm i mongoose
 
+npm i cloudinary
+
 # Config package.json
 
 - in package.json:

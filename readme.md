@@ -31,7 +31,7 @@ npm i cloudinary
 node_modules/
 .vscode/
 .env
-uploads/
+
 
 ```
 

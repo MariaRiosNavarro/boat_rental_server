@@ -1,16 +1,15 @@
 import { BoatModel } from "./model.js";
-import fs from "fs/promises";
 import { v2 as cloudinary } from "cloudinary";
-import multer from "multer";
 
 const cloud_url = process.env.CLOUDINARY_URL;
 
-// set the cloudinary config to use your environment variables
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_SECRET,
 });
+
+// --------------handle Images-----------cloudinary functions
 
 async function handleUpload(file) {
   const res = await cloudinary.uploader.upload(file, {
@@ -19,6 +18,7 @@ async function handleUpload(file) {
   return res;
 }
 
+// check -> dont really work for now
 async function handleDelete(file) {
   const res = await cloudinary.uploader.destroy(file, {
     resource_type: "image",
@@ -133,7 +133,7 @@ export const removeOneBoat = async (req, res) => {
     // Save Boat to remove later the img
     const boat = await BoatModel.findOne({ _id: id });
     let image = boat.img;
-    // delete image
+    // delete image -  check in the future - dont work for now
     if (image) await handleDelete(image);
     // Remove the Boot
     await BoatModel.findOneAndDelete({ _id: id });
@@ -179,7 +179,6 @@ export const editOneBoat = async (req, res) => {
         await handleDelete(oldImage);
       } else {
         console.log("Image don´t change");
-        // return
       }
 
       const cldRes = await handleUpload(dataURI);

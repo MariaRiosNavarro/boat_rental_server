@@ -35,12 +35,21 @@ uploads/
 
 ```
 
-- create .env file and write inside
+- Create .env file and write inside (I dont use in my proyect the CLOUDINARY_URL, but i saved it for the future).
+
+- You need this secrets (mongodbAtlas + cloudinary) in your deployment too
 
 ```javascript
 
-PORT=YOURPORT
-MONGODB=mongodb://YOURADRESS
-DATABASENAME=YOURDBNAME
+
+PORT=YourPort
+MONGODB_URI=yourMongoDBAtlaslike(mongodb+srv:...)
+
+CLOUDINARY_URL=yourCLOUDINARY_Url
+FRONTEND_URL=YourDeployedUrlUsedInYourDeployment
+
+CLOUDINARY_CLOUD_NAME=yourCLOUDINARYName
+CLOUDINARY_API_KEY=yourCLOUDINARYKey
+CLOUDINARY_SECRET=yourCLOUDINARYSecret
 
 ```
